@@ -1,0 +1,330 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "uniqueSuffixSeed": {
+            "type": "string",
+            "defaultValue": "[utcNow('yyyyMMddhhmmssfff')]",
+            "metadata": {
+                "description": "The default value is enough. No need to change the default value."
+            }
+        }
+    },
+    "variables": {
+        "location": "westus2",  // The region must support all storage account types.
+        "uniqueSuffix": "[concat('0', toLower(take(uniqueString(parameters('uniqueSuffixSeed')), 4)))]"
+    },
+    "resources": [
+
+        //
+        // GPv2 Standard
+        //
+
+        // GPv2 Standard LRS
+        {
+            "name": "[concat('gpv2stdlrs', variables('uniqueSuffix'))]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-01-01",
+            "location": "[variables('location')]",
+            "kind": "StorageV2",
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "properties": {
+            }
+        },
+
+        // GPv2 Standard GRS
+        {
+            "name": "[concat('gpv2stdgrs', variables('uniqueSuffix'))]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-01-01",
+            "location": "[variables('location')]",
+            "kind": "StorageV2",
+            "sku": {
+                "name": "Standard_GRS"
+            },
+            "properties": {
+            }
+        },
+
+        // GPv2 Standard RA-GRS
+        {
+            "name": "[concat('gpv2stdragrs', variables('uniqueSuffix'))]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-01-01",
+            "location": "[variables('location')]",
+            "kind": "StorageV2",
+            "sku": {
+                "name": "Standard_RAGRS"
+            },
+            "properties": {
+            }
+        },
+
+        // GPv2 Standard ZRS
+        {
+            "name": "[concat('gpv2stdzrs', variables('uniqueSuffix'))]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-01-01",
+            "location": "[variables('location')]",
+            "kind": "StorageV2",
+            "sku": {
+                "name": "Standard_ZRS"
+            },
+            "properties": {
+            }
+        },
+
+        // GPv2 Standard GZRS
+        {
+            "name": "[concat('gpv2stdgzrs', variables('uniqueSuffix'))]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-01-01",
+            "location": "[variables('location')]",
+            "kind": "StorageV2",
+            "sku": {
+                "name": "Standard_GZRS"
+            },
+            "properties": {
+            }
+        },
+
+        // GPv2 Standard RA-GZRS
+        {
+            "name": "[concat('gpv2stdragzrs', variables('uniqueSuffix'))]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-01-01",
+            "location": "[variables('location')]",
+            "kind": "StorageV2",
+            "sku": {
+                "name": "Standard_RAGZRS"
+            },
+            "properties": {
+            }
+        },
+
+        //
+        // GPv2 Premium
+        //
+
+        // GPv2 Premium LRS
+        {
+            "name": "[concat('gpv2prmlrs', variables('uniqueSuffix'))]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-01-01",
+            "location": "[variables('location')]",
+            "kind": "StorageV2",
+            "sku": {
+                "name": "Premium_LRS"
+            },
+            "properties": {
+            }
+        },
+
+        // GPv2 Premium ZRS
+        {
+            "name": "[concat('gpv2prmzrs', variables('uniqueSuffix'))]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-01-01",
+            "location": "[variables('location')]",
+            "kind": "StorageV2",
+            "sku": {
+                "name": "Premium_ZRS"
+            },
+            "properties": {
+            }
+        },
+
+        //
+        // GPv1 Standard
+        //
+
+        // GPv1 Standard LRS
+        {
+            "name": "[concat('gpv1stdlrs', variables('uniqueSuffix'))]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-01-01",
+            "location": "[variables('location')]",
+            "kind": "Storage",
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "properties": {
+            }
+        },
+
+        // GPv1 Standard GRS
+        {
+            "name": "[concat('gpv1stdgrs', variables('uniqueSuffix'))]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-01-01",
+            "location": "[variables('location')]",
+            "kind": "Storage",
+            "sku": {
+                "name": "Standard_GRS"
+            },
+            "properties": {
+            }
+        },
+
+        // GPv1 Standard RA-GRS
+        {
+            "name": "[concat('gpv1stdragrs', variables('uniqueSuffix'))]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-01-01",
+            "location": "[variables('location')]",
+            "kind": "Storage",
+            "sku": {
+                "name": "Standard_RAGRS"
+            },
+            "properties": {
+            }
+        },
+
+        // GPv1 Standard ZRS
+        {
+            "name": "[concat('gpv1stdzrs', variables('uniqueSuffix'))]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-01-01",
+            "location": "[variables('location')]",
+            "kind": "Storage",
+            "sku": {
+                "name": "Standard_ZRS"
+            },
+            "properties": {
+            }
+        },
+
+        //
+        // GPv1 Premium
+        //
+
+        // GPv1 Premium LRS
+        {
+            "name": "[concat('gpv1prmlrs', variables('uniqueSuffix'))]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-01-01",
+            "location": "[variables('location')]",
+            "kind": "Storage",
+            "sku": {
+                "name": "Premium_LRS"
+            },
+            "properties": {
+            }
+        },
+
+        //
+        // Blob Standard
+        //
+
+        // Blob Standard LRS
+        {
+            "name": "[concat('blobstdlrs', variables('uniqueSuffix'))]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-01-01",
+            "location": "[variables('location')]",
+            "kind": "BlobStorage",
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "properties": {
+                "accessTier": "Hot"
+            }
+        },
+
+        // Blob Standard GRS
+        {
+            "name": "[concat('blobstdgrs', variables('uniqueSuffix'))]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-01-01",
+            "location": "[variables('location')]",
+            "kind": "BlobStorage",
+            "sku": {
+                "name": "Standard_GRS"
+            },
+            "properties": {
+                "accessTier": "Hot"
+            }
+        },
+
+        // Blob Standard RA-GRS
+        {
+            "name": "[concat('blobstdragrs', variables('uniqueSuffix'))]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-01-01",
+            "location": "[variables('location')]",
+            "kind": "BlobStorage",
+            "sku": {
+                "name": "Standard_RAGRS"
+            },
+            "properties": {
+                "accessTier": "Hot"
+            }
+        },
+
+        //
+        // Block Blob Premium
+        //
+
+        // Block Blob Premium LRS
+        {
+            "name": "[concat('blockblobprmlrs', variables('uniqueSuffix'))]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-01-01",
+            "location": "[variables('location')]",
+            "kind": "BlockBlobStorage",
+            "sku": {
+                "name": "Premium_LRS"
+            },
+            "properties": {
+            }
+        },
+
+        // Block Blob Premium ZRS
+        {
+            "name": "[concat('blockblobprmzrs', variables('uniqueSuffix'))]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-01-01",
+            "location": "[variables('location')]",
+            "kind": "BlockBlobStorage",
+            "sku": {
+                "name": "Premium_ZRS"
+            },
+            "properties": {
+            }
+        },
+
+        //
+        // File Premium
+        //
+
+        // File Premium LRS
+        {
+            "name": "[concat('fileprmlrs', variables('uniqueSuffix'))]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-01-01",
+            "location": "[variables('location')]",
+            "kind": "FileStorage",
+            "sku": {
+                "name": "Premium_LRS"
+            },
+            "properties": {
+            }
+        },
+
+        // File Premium ZRS
+        {
+            "name": "[concat('fileprmzrs', variables('uniqueSuffix'))]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-01-01",
+            "location": "[variables('location')]",
+            "kind": "FileStorage",
+            "sku": {
+                "name": "Premium_ZRS"
+            },
+            "properties": {
+            }
+        }
+    ]
+}
