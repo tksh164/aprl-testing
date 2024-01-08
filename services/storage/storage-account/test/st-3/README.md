@@ -8,50 +8,68 @@
 
 ## Targets
 
-- Storage account: General purpose v2 - Standard LRS
-- Storage account: General purpose v2 - Standard GRS
-- Storage account: General purpose v2 - Standard RA-GRS
-- Storage account: General purpose v2 - Standard ZRS
-- Storage account: General purpose v2 - Standard GZRS
-- Storage account: General purpose v2 - Standard RA-GZRS
-- Storage account: General purpose v2 - Premium LRS
-- Storage account: General purpose v2 - Premium ZRS
-- Storage account: General purpose v1 - Standard LRS
-- Storage account: General purpose v1 - Standard GRS
-- Storage account: General purpose v1 - Standard RA-GRS
-- Storage account: General purpose v1 - Standard ZRS
-- Storage account: General purpose v1 - Premium LRS
-- Storage account: Blob storage - Standard LRS
-- Storage account: Blob storage - Standard GRS
-- Storage account: Blob storage - Standard RA-GRS
-- Storage account: Block blob storage - Premium LRS
-- Storage account: Block blob storage - Premium ZRS
-- Storage account: File storage - Premium LRS
-- Storage account: File storage - Premium ZRS
+- Storage account - General purpose v2
+    - **gpv2stdlrs**: Storage account - General purpose v2, Standard LRS
+    - **gpv2stdgrs**: Storage account - General purpose v2, Standard GRS
+    - **gpv2stdragrs**: Storage account - General purpose v2, Standard RA-GRS
+    - **gpv2stdzrs**: Storage account - General purpose v2, Standard ZRS
+    - **gpv2stdgzrs**: Storage account - General purpose v2, Standard GZRS
+    - **gpv2stdragzrs**: Storage account - General purpose v2, Standard RA-GZRS
+    - **gpv2prmlrs**: Storage account - General purpose v2, Premium LRS
+    - **gpv2prmzrs**: Storage account - General purpose v2, Premium ZRS
+
+- Storage account - General purpose v1
+    - **gpv1stdlrs**: Storage account - General purpose v1, Standard LRS
+    - **gpv1stdgrs**: Storage account - General purpose v1, Standard GRS
+    - **gpv1stdragrs**: Storage account - General purpose v1, Standard RA-GRS
+    - **gpv1stdzrs**: Storage account - General purpose v1, Standard ZRS
+    - **gpv1prmlrs**: Storage account - General purpose v1, Premium LRS
+
+- Storage account - Blob storage
+    - **blobstdlrs**: Storage account - Blob storage, Standard LRS
+    - **blobstdgrs**: Storage account - Blob storage, Standard GRS
+    - **blobstdragrs**: Storage account - Blob storage, Standard RA-GRS
+
+- Storage account - Block blob storage
+    - **blockblobprmlrs**: Storage account - Block blob storage, Premium LRS
+    - **blockblobprmzrs**: Storage account - Block blob storage, Premium ZRS
+
+- Storage account - File storage
+    - **fileprmlrs**: Storage account - File storage, Premium LRS
+    - **fileprmzrs**: Storage account - File storage, Premium ZRS
 
 ## Expected result
 
 - Should include
 
-    - Storage account: General purpose v1 - Standard LRS
-    - Storage account: General purpose v1 - Standard GRS
-    - Storage account: General purpose v1 - Standard RA-GRS
-    - Storage account: General purpose v1 - Standard ZRS
-    - Storage account: General purpose v1 - Premium LRS
-    - Storage account: Blob storage - Standard LRS
-    - Storage account: Blob storage - Standard GRS
-    - Storage account: Blob storage - Standard RA-GRS
+    - Storage account - General purpose v1
+        - **gpv1stdlrs**: Storage account - General purpose v1, Standard LRS
+        - **gpv1stdgrs**: Storage account - General purpose v1, Standard GRS
+        - **gpv1stdragrs**: Storage account - General purpose v1, Standard RA-GRS
+        - **gpv1stdzrs**: Storage account - General purpose v1, Standard ZRS
+        - **gpv1prmlrs**: Storage account - General purpose v1, Premium LRS
+
+    - Storage account - Blob storage
+        - **blobstdlrs**: Storage account - Blob storage, Standard LRS
+        - **blobstdgrs**: Storage account - Blob storage, Standard GRS
+        - **blobstdragrs**: Storage account - Blob storage, Standard RA-GRS
 
 - Should not be included
 
-    - Storage account: General purpose v2 - Standard LRS
-    - Storage account: General purpose v2 - Standard GRS
-    - Storage account: General purpose v2 - Standard RA-GRS
-    - Storage account: General purpose v2 - Standard ZRS
-    - Storage account: General purpose v2 - Standard GZRS
-    - Storage account: General purpose v2 - Standard RA-GZRS
-    - Storage account: General purpose v2 - Premium LRS
-    - Storage account: Block blob storage - Premium LRS
-    - Storage account: Block blob storage - Premium ZRS
-    - Storage account: File storage - Premium LRS
-    - Storage account: File storage - Premium ZRS
+    - Storage account - General purpose v2
+        - **gpv2stdlrs**: Storage account - General purpose v2, Standard LRS
+        - **gpv2stdgrs**: Storage account - General purpose v2, Standard GRS
+        - **gpv2stdragrs**: Storage account - General purpose v2, Standard RA-GRS
+        - **gpv2stdzrs**: Storage account - General purpose v2, Standard ZRS
+        - **gpv2stdgzrs**: Storage account - General purpose v2, Standard GZRS
+        - **gpv2stdragzrs**: Storage account - General purpose v2, Standard RA-GZRS
+        - **gpv2prmlrs**: Storage account - General purpose v2, Premium LRS
+        - **gpv2prmzrs**: Storage account - General purpose v2, Premium ZRS
+
+    - Storage account - Block blob storage
+        - **blockblobprmlrs**: Storage account - Block blob storage, Premium LRS
+        - **blockblobprmzrs**: Storage account - Block blob storage, Premium ZRS
+
+    - Storage account - File storage
+        - **fileprmlrs**: Storage account - File storage, Premium LRS
+        - **fileprmzrs**: Storage account - File storage, Premium ZRS
