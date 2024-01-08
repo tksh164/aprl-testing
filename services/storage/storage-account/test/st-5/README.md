@@ -8,50 +8,49 @@
 
 ## Targets
 
-- Soft delete for blobs
-    - **gpv2stdsdelbloben**: Storage account - General purpose v2, Standard LRS, Soft delete for blobs ENABLED
-    - **gpv2stdsdelblobdi**: Storage account - General purpose v2, Standard LRS, Soft delete for blobs DISABLED
-    - **bblobprmsdelbloben**: Storage account - Block blob storage, Premium LRS, Soft delete for blobs ENABLED
-    - **bblobprmsdelblobdi**: Storage account - Block blob storage, Premium LRS, Soft delete for blobs DISABLED
-
-- Soft delete for containers
-    - **gpv2stdsdelconen**: Storage account - General purpose v2, Standard LRS, Soft delete for containers ENABLED
-    - **gpv2stdsdelcondi**: Storage account - General purpose v2, Standard LRS, Soft delete for containers DISABLED
-    - **bblobprmsdelconen**: Storage account - Block blob storage, Premium LRS, Soft delete for containers ENABLED
-    - **bblobprmsdelcondi**: Storage account - Block blob storage, Premium LRS, Soft delete for containers DISABLED
-
-- Soft delete for file shares
-    - **gpv2stdsdelshareen**: Storage account - General purpose v2, Standard LRS, Soft delete for file shares ENABLED
-    - **gpv2stdsdelsharedi**: Storage account - General purpose v2, Standard LRS, Soft delete for file shares DISABLED
-    - **fileprmsdelshareen**: Storage account - File storage, Premium LRS, Soft delete for file shares ENABLED
-    - **fileprmsdelsharedi**: Storage account - File storage, Premium LRS, Soft delete for file shares DISABLED
+| Name | Resource Type | Kind | SKU | Soft delete for blobs | Soft delete for containers | Soft delete for file shares |
+| ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| gpv2stdsdelbdicdi | Storage account | General purpose v2 | Standard LRS | Disabled | Disabled | Enabled |
+| gpv2stdsdelbdicen | Storage account | General purpose v2 | Standard LRS | Disabled | Enabled | Enabled |
+| gpv2stdsdelbencdi | Storage account | General purpose v2 | Standard LRS | Enabled | Disabled | Enabled |
+| gpv2stdsdelbencen | Storage account | General purpose v2 | Standard LRS | Enabled | Enabled | Enabled |
+| | | | | | | |
+| gpv2stdsdelsharedi | Storage account | General purpose v2 | Standard LRS | Disabled | Disabled | Disabled |
+| gpv2stdsdelshareen | Storage account | General purpose v2 | Standard LRS | Disabled | Disabled | Enabled |
+| | | | | | | |
+| bblobprmsdelbdicdi | Storage account | Block blob storage | Premium LRS | Disabled |Disabled  | n/a |
+| bblobprmsdelbdicen | Storage account | Block blob storage | Premium LRS | Disabled | Enabled | n/a |
+| bblobprmsdelbencdi | Storage account | Block blob storage | Premium LRS | Enabled | Disabled | n/a |
+| bblobprmsdelbencen | Storage account | Block blob storage | Premium LRS | Enabled | Enabled | n/a |
+| | | | | | | |
+| fileprmsdelsharedi | Storage account | File storage | Premium LRS | n/a | n/a | Disabled |
+| fileprmsdelshareen | Storage account | File storage | Premium LRS | n/a | n/a | Enabled |
 
 ## Expected result
 
 ### Should include
 
-- Soft delete for blobs DISABLED
-    - **gpv2stdsdelblobdi**: Storage account - General purpose v2, Standard LRS, Soft delete for blobs DISABLED
-    - **bblobprmsdelblobdi**: Storage account - Block blob storage, Premium LRS, Soft delete for blobs DISABLED
-
-- Soft delete for containers DISABLED
-    - **gpv2stdsdelcondi**: Storage account - General purpose v2, Standard LRS, Soft delete for containers DISABLED
-    - **bblobprmsdelcondi**: Storage account - Block blob storage, Premium LRS, Soft delete for containers DISABLED
-
-- Soft delete for file shares DISABLED
-    - **gpv2stdsdelsharedi**: Storage account - General purpose v2, Standard LRS, Soft delete for file shares DISABLED
-    - **fileprmsdelsharedi**: Storage account - File storage, Premium LRS, Soft delete for file shares DISABLED
+| Name | Resource Type | Kind | SKU | Soft delete for blobs | Soft delete for containers | Soft delete for file shares |
+| ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| gpv2stdsdelbdicdi | Storage account | General purpose v2 | Standard LRS | Disabled | Disabled | Enabled |
+| gpv2stdsdelbdicen | Storage account | General purpose v2 | Standard LRS | Disabled | Enabled | Enabled |
+| gpv2stdsdelbencdi | Storage account | General purpose v2 | Standard LRS | Enabled | Disabled | Enabled |
+| | | | | | | |
+| gpv2stdsdelsharedi | Storage account | General purpose v2 | Standard LRS | Disabled | Disabled | Disabled |
+| gpv2stdsdelshareen | Storage account | General purpose v2 | Standard LRS | Disabled | Disabled | Enabled |
+| | | | | | | |
+| bblobprmsdelbdicdi | Storage account | Block blob storage | Premium LRS | Disabled |Disabled  | n/a |
+| bblobprmsdelbdicen | Storage account | Block blob storage | Premium LRS | Disabled | Enabled | n/a |
+| bblobprmsdelbencdi | Storage account | Block blob storage | Premium LRS | Enabled | Disabled | n/a |
+| | | | | | | |
+| fileprmsdelsharedi | Storage account | File storage | Premium LRS | n/a | n/a | Disabled |
 
 ### Should not be included
 
-- Soft delete for blobs ENABLED
-    - **gpv2stdsdelbloben**: Storage account - General purpose v2, Standard LRS, Soft delete for blobs ENABLED
-    - **bblobprmsdelbloben**: Storage account - Block blob storage, Premium LRS, Soft delete for blobs ENABLED
-
-- Soft delete for containers ENABLED
-    - **gpv2stdsdelconen**: Storage account - General purpose v2, Standard LRS, Soft delete for containers ENABLED
-    - **bblobprmsdelconen**: Storage account - Block blob storage, Premium LRS, Soft delete for containers ENABLED
-
-- Soft delete for file shares ENABLED
-    - **gpv2stdsdelshareen**: Storage account - General purpose v2, Standard LRS, Soft delete for file shares ENABLED
-    - **fileprmsdelshareen**: Storage account - File storage, Premium LRS, Soft delete for file shares ENABLED
+| Name | Resource Type | Kind | SKU | Soft delete for blobs | Soft delete for containers | Soft delete for file shares |
+| ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| gpv2stdsdelbencen | Storage account | General purpose v2 | Standard LRS | Enabled | Enabled | Enabled |
+| | | | | | | |
+| bblobprmsdelbencen | Storage account | Block blob storage | Premium LRS | Enabled | Enabled | n/a |
+| | | | | | | |
+| fileprmsdelshareen | Storage account | File storage | Premium LRS | n/a | n/a | Enabled |
