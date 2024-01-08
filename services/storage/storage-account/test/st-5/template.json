@@ -17,25 +17,25 @@
         // Soft delete for blobs
         "blobsConfig": [
             {
-                "name": "[concat('gpv2', 'std', 'sdel', 'blob', 'en', variables('uniqueSuffix'))]",
+                "name": "[concat('gpv2', 'std', 'sdel', 'blob', 'en')]",
                 "kind": "StorageV2",
                 "sku": "Standard_LRS",
                 "softDeleteEnabled": true
             },
             {
-                "name": "[concat('gpv2', 'std', 'sdel', 'blob', 'di', variables('uniqueSuffix'))]",
+                "name": "[concat('gpv2', 'std', 'sdel', 'blob', 'di')]",
                 "kind": "StorageV2",
                 "sku": "Standard_LRS",
                 "softDeleteEnabled": false
             },
             {
-                "name": "[concat('bblob', 'prm', 'sdel', 'blob', 'en', variables('uniqueSuffix'))]",
+                "name": "[concat('bblob', 'prm', 'sdel', 'blob', 'en')]",
                 "kind": "BlockBlobStorage",
                 "sku": "Premium_LRS",
                 "softDeleteEnabled": true
             },
             {
-                "name": "[concat('bblob', 'prm', 'sdel', 'blob', 'di', variables('uniqueSuffix'))]",
+                "name": "[concat('bblob', 'prm', 'sdel', 'blob', 'di')]",
                 "kind": "BlockBlobStorage",
                 "sku": "Premium_LRS",
                 "softDeleteEnabled": false
@@ -45,25 +45,25 @@
         // Soft delete for containers
         "containersConfig": [
             {
-                "name": "[concat('gpv2', 'std', 'sdel', 'con', 'en', variables('uniqueSuffix'))]",
+                "name": "[concat('gpv2', 'std', 'sdel', 'con', 'en')]",
                 "kind": "StorageV2",
                 "sku": "Standard_LRS",
                 "softDeleteEnabled": true
             },
             {
-                "name": "[concat('gpv2', 'std', 'sdel', 'con', 'di', variables('uniqueSuffix'))]",
+                "name": "[concat('gpv2', 'std', 'sdel', 'con', 'di')]",
                 "kind": "StorageV2",
                 "sku": "Standard_LRS",
                 "softDeleteEnabled": false
             },
             {
-                "name": "[concat('bblob', 'prm', 'sdel', 'con', 'en', variables('uniqueSuffix'))]",
+                "name": "[concat('bblob', 'prm', 'sdel', 'con', 'en')]",
                 "kind": "BlockBlobStorage",
                 "sku": "Premium_LRS",
                 "softDeleteEnabled": true
             },
             {
-                "name": "[concat('bblob', 'prm', 'sdel', 'con', 'di', variables('uniqueSuffix'))]",
+                "name": "[concat('bblob', 'prm', 'sdel', 'con', 'di')]",
                 "kind": "BlockBlobStorage",
                 "sku": "Premium_LRS",
                 "softDeleteEnabled": false
@@ -73,25 +73,25 @@
         // Soft delete for file shares
         "fileSharesConfig": [
             {
-                "name": "[concat('gpv2', 'std', 'sdel', 'share', 'en', variables('uniqueSuffix'))]",
+                "name": "[concat('gpv2', 'std', 'sdel', 'share', 'en')]",
                 "kind": "StorageV2",
                 "sku": "Standard_LRS",
                 "softDeleteEnabled": true
             },
             {
-                "name": "[concat('gpv2', 'std', 'sdel', 'share', 'di', variables('uniqueSuffix'))]",
+                "name": "[concat('gpv2', 'std', 'sdel', 'share', 'di')]",
                 "kind": "StorageV2",
                 "sku": "Standard_LRS",
                 "softDeleteEnabled": false
             },
             {
-                "name": "[concat('file', 'prm', 'sdel', 'share', 'en', variables('uniqueSuffix'))]",
+                "name": "[concat('file', 'prm', 'sdel', 'share', 'en')]",
                 "kind": "FileStorage",
                 "sku": "Premium_LRS",
                 "softDeleteEnabled": true
             },
             {
-                "name": "[concat('file', 'prm', 'sdel', 'share', 'di', variables('uniqueSuffix'))]",
+                "name": "[concat('file', 'prm', 'sdel', 'share', 'di')]",
                 "kind": "FileStorage",
                 "sku": "Premium_LRS",
                 "softDeleteEnabled": false
@@ -105,7 +105,7 @@
                 "name": "blobsConfigCopy",
                 "count": "[length(variables('blobsConfig'))]"
             },
-            "name": "[variables('blobsConfig')[copyIndex('blobsConfigCopy')].name]",
+            "name": "[concat(variables('blobsConfig')[copyIndex('blobsConfigCopy')].name, variables('uniqueSuffix'))]",
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2023-01-01",
             "location": "[variables('location')]",
@@ -121,11 +121,11 @@
                 "name": "blobsConfigCopy",
                 "count": "[length(variables('blobsConfig'))]"
             },
-            "name": "[concat(variables('blobsConfig')[copyIndex('blobsConfigCopy')].name, '/default')]",
+            "name": "[concat(variables('blobsConfig')[copyIndex('blobsConfigCopy')].name, variables('uniqueSuffix'), '/default')]",
             "type": "Microsoft.Storage/storageAccounts/blobServices",
             "apiVersion": "2023-01-01",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/', variables('blobsConfig')[copyIndex('blobsConfigCopy')].name)]"
+                "[resourceId('Microsoft.Storage/storageAccounts/', concat(variables('blobsConfig')[copyIndex('blobsConfigCopy')].name, variables('uniqueSuffix')))]"
             ],
             "properties": {
                 "deleteRetentionPolicy": {
@@ -141,7 +141,7 @@
                 "name": "containersConfigCopy",
                 "count": "[length(variables('containersConfig'))]"
             },
-            "name": "[variables('containersConfig')[copyIndex('containersConfigCopy')].name]",
+            "name": "[concat(variables('containersConfig')[copyIndex('containersConfigCopy')].name, variables('uniqueSuffix'))]",
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2023-01-01",
             "location": "[variables('location')]",
@@ -157,11 +157,11 @@
                 "name": "containersConfigCopy",
                 "count": "[length(variables('containersConfig'))]"
             },
-            "name": "[concat(variables('containersConfig')[copyIndex('containersConfigCopy')].name, '/default')]",
+            "name": "[concat(variables('containersConfig')[copyIndex('containersConfigCopy')].name, variables('uniqueSuffix'), '/default')]",
             "type": "Microsoft.Storage/storageAccounts/blobServices",
             "apiVersion": "2023-01-01",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/', variables('containersConfig')[copyIndex('containersConfigCopy')].name)]"
+                "[resourceId('Microsoft.Storage/storageAccounts/', concat(variables('containersConfig')[copyIndex('containersConfigCopy')].name, variables('uniqueSuffix')))]"
             ],
             "properties": {
                 "containerDeleteRetentionPolicy": {
@@ -177,7 +177,7 @@
                 "name": "fileSharesConfigCopy",
                 "count": "[length(variables('fileSharesConfig'))]"
             },
-            "name": "[variables('fileSharesConfig')[copyIndex('fileSharesConfigCopy')].name]",
+            "name": "[concat(variables('fileSharesConfig')[copyIndex('fileSharesConfigCopy')].name, variables('uniqueSuffix'))]",
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2023-01-01",
             "location": "[variables('location')]",
@@ -193,11 +193,11 @@
                 "name": "fileSharesConfigCopy",
                 "count": "[length(variables('fileSharesConfig'))]"
             },
-            "name": "[concat(variables('fileSharesConfig')[copyIndex('fileSharesConfigCopy')].name, '/default')]",
+            "name": "[concat(variables('fileSharesConfig')[copyIndex('fileSharesConfigCopy')].name, variables('uniqueSuffix'), '/default')]",
             "type": "Microsoft.Storage/storageAccounts/fileServices",
             "apiVersion": "2023-01-01",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/', variables('fileSharesConfig')[copyIndex('fileSharesConfigCopy')].name)]"
+                "[resourceId('Microsoft.Storage/storageAccounts/', concat(variables('fileSharesConfig')[copyIndex('fileSharesConfigCopy')].name, variables('uniqueSuffix')))]"
             ],
             "properties": {
                 "shareDeleteRetentionPolicy": {
