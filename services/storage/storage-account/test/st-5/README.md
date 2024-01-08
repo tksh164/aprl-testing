@@ -30,6 +30,8 @@
 
 ### Should include
 
+Least one soft delete options are disabled.
+
 | Name | Resource Type | Kind | SKU | Soft delete for blobs | Soft delete for containers | Soft delete for file shares |
 | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
 | gpv2stdsdelbdicdi | Storage account | General purpose v2 | Standard LRS | Disabled | Disabled | Enabled |
@@ -46,6 +48,8 @@
 | fileprmsdelsharedi | Storage account | File storage | Premium LRS | n/a | n/a | Disabled |
 
 ### Should not be included
+
+All soft delete options are enabled.
 
 | Name | Resource Type | Kind | SKU | Soft delete for blobs | Soft delete for containers | Soft delete for file shares |
 | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
