@@ -14,59 +14,72 @@
         "location": "[resourceGroup().location]",
         "uniqueSuffix": "[concat('0', toLower(take(uniqueString(parameters('uniqueSuffixSeed')), 4)))]",
 
-        // Soft delete for blobs
-        "blobsConfig": [
-            {
-                "name": "[concat('gpv2', 'std', 'sdel', 'blob', 'en')]",
-                "kind": "StorageV2",
-                "sku": "Standard_LRS",
-                "softDeleteEnabled": true
-            },
-            {
-                "name": "[concat('gpv2', 'std', 'sdel', 'blob', 'di')]",
-                "kind": "StorageV2",
-                "sku": "Standard_LRS",
-                "softDeleteEnabled": false
-            },
-            {
-                "name": "[concat('bblob', 'prm', 'sdel', 'blob', 'en')]",
-                "kind": "BlockBlobStorage",
-                "sku": "Premium_LRS",
-                "softDeleteEnabled": true
-            },
-            {
-                "name": "[concat('bblob', 'prm', 'sdel', 'blob', 'di')]",
-                "kind": "BlockBlobStorage",
-                "sku": "Premium_LRS",
-                "softDeleteEnabled": false
-            }
-        ],
+        // Soft delete for blobs/containers
+        "blobsContainersConfig": [
+            //
+            // GPv2 Standard LRS
+            //
 
-        // Soft delete for containers
-        "containersConfig": [
             {
-                "name": "[concat('gpv2', 'std', 'sdel', 'con', 'en')]",
+                "name": "[concat('gpv2', 'std', 'sdel', 'b', 'di', 'c', 'di')]",
                 "kind": "StorageV2",
                 "sku": "Standard_LRS",
-                "softDeleteEnabled": true
+                "blobsSoftDeleteEnabled": false,
+                "containersSoftDeleteEnabled": false
             },
             {
-                "name": "[concat('gpv2', 'std', 'sdel', 'con', 'di')]",
+                "name": "[concat('gpv2', 'std', 'sdel', 'b', 'en', 'c', 'di')]",
                 "kind": "StorageV2",
                 "sku": "Standard_LRS",
-                "softDeleteEnabled": false
+                "blobsSoftDeleteEnabled": true,
+                "containersSoftDeleteEnabled": false
             },
             {
-                "name": "[concat('bblob', 'prm', 'sdel', 'con', 'en')]",
-                "kind": "BlockBlobStorage",
-                "sku": "Premium_LRS",
-                "softDeleteEnabled": true
+                "name": "[concat('gpv2', 'std', 'sdel', 'b', 'di', 'c', 'en')]",
+                "kind": "StorageV2",
+                "sku": "Standard_LRS",
+                "blobsSoftDeleteEnabled": false,
+                "containersSoftDeleteEnabled": true
             },
             {
-                "name": "[concat('bblob', 'prm', 'sdel', 'con', 'di')]",
+                "name": "[concat('gpv2', 'std', 'sdel', 'b', 'en', 'c', 'en')]",
+                "kind": "StorageV2",
+                "sku": "Standard_LRS",
+                "blobsSoftDeleteEnabled": true,
+                "containersSoftDeleteEnabled": true
+            },
+
+            //
+            // Block blob storage Premium LRS
+            //
+
+            {
+                "name": "[concat('bblob', 'prm', 'sdel', 'b', 'di', 'c', 'di')]",
                 "kind": "BlockBlobStorage",
                 "sku": "Premium_LRS",
-                "softDeleteEnabled": false
+                "blobsSoftDeleteEnabled": false,
+                "containersSoftDeleteEnabled": false
+            },
+            {
+                "name": "[concat('bblob', 'prm', 'sdel', 'b', 'en', 'c', 'di')]",
+                "kind": "BlockBlobStorage",
+                "sku": "Premium_LRS",
+                "blobsSoftDeleteEnabled": true,
+                "containersSoftDeleteEnabled": false
+            },
+            {
+                "name": "[concat('bblob', 'prm', 'sdel', 'b', 'di', 'c', 'en')]",
+                "kind": "BlockBlobStorage",
+                "sku": "Premium_LRS",
+                "blobsSoftDeleteEnabled": false,
+                "containersSoftDeleteEnabled": true
+            },
+            {
+                "name": "[concat('bblob', 'prm', 'sdel', 'b', 'en', 'c', 'en')]",
+                "kind": "BlockBlobStorage",
+                "sku": "Premium_LRS",
+                "blobsSoftDeleteEnabled": true,
+                "containersSoftDeleteEnabled": true
             }
         ],
 
@@ -99,73 +112,41 @@
         ]
     },
     "resources": [
-        // Soft delete for blobs
+        // Soft delete for blobs/containers
         {
             "copy": {
-                "name": "blobsConfigCopy",
-                "count": "[length(variables('blobsConfig'))]"
+                "name": "blobsContainersConfigCopy",
+                "count": "[length(variables('blobsContainersConfig'))]"
             },
-            "name": "[concat(variables('blobsConfig')[copyIndex('blobsConfigCopy')].name, variables('uniqueSuffix'))]",
+            "name": "[concat(variables('blobsContainersConfig')[copyIndex('blobsContainersConfigCopy')].name, variables('uniqueSuffix'))]",
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2023-01-01",
             "location": "[variables('location')]",
-            "kind": "[variables('blobsConfig')[copyIndex('blobsConfigCopy')].kind]",
+            "kind": "[variables('blobsContainersConfig')[copyIndex('blobsContainersConfigCopy')].kind]",
             "sku": {
-                "name": "[variables('blobsConfig')[copyIndex('blobsConfigCopy')].sku]"
+                "name": "[variables('blobsContainersConfig')[copyIndex('blobsContainersConfigCopy')].sku]"
             },
             "properties": {
             }
         },
         {
             "copy": {
-                "name": "blobsConfigCopy",
-                "count": "[length(variables('blobsConfig'))]"
+                "name": "blobsContainersConfigCopy",
+                "count": "[length(variables('blobsContainersConfig'))]"
             },
-            "name": "[concat(variables('blobsConfig')[copyIndex('blobsConfigCopy')].name, variables('uniqueSuffix'), '/default')]",
+            "name": "[concat(variables('blobsContainersConfig')[copyIndex('blobsContainersConfigCopy')].name, variables('uniqueSuffix'), '/default')]",
             "type": "Microsoft.Storage/storageAccounts/blobServices",
             "apiVersion": "2023-01-01",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/', concat(variables('blobsConfig')[copyIndex('blobsConfigCopy')].name, variables('uniqueSuffix')))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/', concat(variables('blobsContainersConfig')[copyIndex('blobsContainersConfigCopy')].name, variables('uniqueSuffix')))]"
             ],
             "properties": {
                 "deleteRetentionPolicy": {
-                    "enabled": "[variables('blobsConfig')[copyIndex('blobsConfigCopy')].softDeleteEnabled]",
+                    "enabled": "[variables('blobsContainersConfig')[copyIndex('blobsContainersConfigCopy')].blobsSoftDeleteEnabled]",
                     "days": 7
-                }
-            }
-        },
-
-        // Soft delete for containers
-        {
-            "copy": {
-                "name": "containersConfigCopy",
-                "count": "[length(variables('containersConfig'))]"
-            },
-            "name": "[concat(variables('containersConfig')[copyIndex('containersConfigCopy')].name, variables('uniqueSuffix'))]",
-            "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2023-01-01",
-            "location": "[variables('location')]",
-            "kind": "[variables('containersConfig')[copyIndex('containersConfigCopy')].kind]",
-            "sku": {
-                "name": "[variables('containersConfig')[copyIndex('containersConfigCopy')].sku]"
-            },
-            "properties": {
-            }
-        },
-        {
-            "copy": {
-                "name": "containersConfigCopy",
-                "count": "[length(variables('containersConfig'))]"
-            },
-            "name": "[concat(variables('containersConfig')[copyIndex('containersConfigCopy')].name, variables('uniqueSuffix'), '/default')]",
-            "type": "Microsoft.Storage/storageAccounts/blobServices",
-            "apiVersion": "2023-01-01",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/', concat(variables('containersConfig')[copyIndex('containersConfigCopy')].name, variables('uniqueSuffix')))]"
-            ],
-            "properties": {
+                },
                 "containerDeleteRetentionPolicy": {
-                    "enabled": "[variables('containersConfig')[copyIndex('containersConfigCopy')].softDeleteEnabled]",
+                    "enabled": "[variables('blobsContainersConfig')[copyIndex('blobsContainersConfigCopy')].containersSoftDeleteEnabled]",
                     "days": 7
                 }
             }
