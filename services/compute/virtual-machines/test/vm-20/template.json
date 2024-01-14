@@ -1,0 +1,649 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "adminUsername": {
+            "type": "string",
+            "defaultValue": "vmadmin"
+        },
+        "adminPassword": {
+            "type": "secureString"
+        },
+        "uniqueSuffixSeed": {
+            "type": "string",
+            "defaultValue": "[utcNow('yyyyMMddhhmmssfff')]",
+            "metadata": {
+                "description": "The default value is enough. No need to change the default value."
+            }
+        }
+    },
+    "variables": {
+
+        // Common
+
+        "prefix": "aprl-vm20",
+        "location": "[resourceGroup().location]",
+        "uniqueSuffix": "[concat('0', toLower(take(uniqueString(parameters('uniqueSuffixSeed')), 4)))]",
+
+        // Log Analytics workspaces
+
+        "logAnalyticsWorkspaceConfig": {
+            "vmInsightsInstalled": {
+                "name": "[format('{0}-vminsights-installed-{1}-log', variables('prefix'), variables('uniqueSuffix'))]"
+            },
+            "vmInsightsNotInstalled": {
+                "name": "[format('{0}-vminsights-not-installed-{1}-log', variables('prefix'), variables('uniqueSuffix'))]"
+            }
+        },
+
+        // Virtual network
+
+        "virtualNetworkName": "[format('{0}-vnet', variables('prefix'))]",
+        "subnetName": "default",
+
+        // Configuration
+
+        "config": {
+
+            // Azure Monitor agent
+
+            "vmInsightsFullEnabledWithAma": {
+                "vmName": "[format('{0}-1-ama-vminsights-enabled-full-{1}-vm', variables('prefix'), variables('uniqueSuffix'))]",
+                "computerName": "[format('{0}-1', variables('prefix'))]",
+                "dataCollectionRuleName": "[format('{0}-1-vminsights-full-dcr', variables('prefix'))]",
+                "logAnalyticsWorkspaceName": "[variables('logAnalyticsWorkspaceConfig').vmInsightsNotInstalled.name]"
+            },
+            "vmInsightsPerfOnlyEnabledWithAma": {
+                "vmName": "[format('{0}-2-ama-vminsights-enabled-perfonly-{1}-vm', variables('prefix'), variables('uniqueSuffix'))]",
+                "computerName": "[format('{0}-2', variables('prefix'))]",
+                "dataCollectionRuleName": "[format('{0}-2-vminsights-perfonly-dcr', variables('prefix'))]",
+                "logAnalyticsWorkspaceName": "[variables('logAnalyticsWorkspaceConfig').vmInsightsNotInstalled.name]"
+            },
+            "vmInsightsDisabledWithAma": {
+                "vmName": "[format('{0}-3-ama-vminsights-disabled-{1}-vm', variables('prefix'), variables('uniqueSuffix'))]",
+                "computerName": "[format('{0}-3', variables('prefix'))]",
+                "dataCollectionRuleName": "[format('{0}-3-vminsights-disabled-dcr', variables('prefix'))]",
+                "logAnalyticsWorkspaceName": "[variables('logAnalyticsWorkspaceConfig').vmInsightsNotInstalled.name]"
+            },
+
+            // Log Analytics agent
+
+            "vmInsightsEnabledWithMma": {
+                "vmName": "[format('{0}-4-mma-vminsights-enabled-{1}-vm', variables('prefix'), variables('uniqueSuffix'))]",
+                "computerName": "[format('{0}-4', variables('prefix'))]",
+                "logAnalyticsWorkspaceName": "[variables('logAnalyticsWorkspaceConfig').vmInsightsInstalled.name]"
+            },
+            "vmInsightsDisabledWithMma": {
+                "vmName": "[format('{0}-5-mma-vminsights-disabled-{1}-vm', variables('prefix'), variables('uniqueSuffix'))]",
+                "computerName": "[format('{0}-5', variables('prefix'))]",
+                "logAnalyticsWorkspaceName": "[variables('logAnalyticsWorkspaceConfig').vmInsightsNotInstalled.name]"
+            },
+
+            // No agents
+
+            "withoutAnyExtensions": {
+                "vmName": "[format('{0}-6-noextensions-{1}-vm', variables('prefix'), variables('uniqueSuffix'))]",
+                "computerName": "[format('{0}-6', variables('prefix'))]"
+            }
+        },
+
+        // Virtual machines
+
+        "vmConfig": [
+            {
+                "name": "[variables('config').vmInsightsFullEnabledWithAma.vmName]",
+                "computerName": "[variables('config').vmInsightsFullEnabledWithAma.computerName]"
+            },
+            {
+                "name": "[variables('config').vmInsightsPerfOnlyEnabledWithAma.vmName]",
+                "computerName": "[variables('config').vmInsightsPerfOnlyEnabledWithAma.computerName]"
+            },
+            {
+                "name": "[variables('config').vmInsightsDisabledWithAma.vmName]",
+                "computerName": "[variables('config').vmInsightsDisabledWithAma.computerName]"
+            },
+            {
+                "name": "[variables('config').vmInsightsEnabledWithMma.vmName]",
+                "computerName": "[variables('config').vmInsightsEnabledWithMma.computerName]"
+            },
+            {
+                "name": "[variables('config').vmInsightsDisabledWithMma.vmName]",
+                "computerName": "[variables('config').vmInsightsDisabledWithMma.computerName]"
+            },
+            {
+                "name": "[variables('config').withoutAnyExtensions.vmName]",
+                "computerName": "[variables('config').withoutAnyExtensions.computerName]"
+            }
+        ]
+    },
+    "resources": [
+        //
+        // Log Analytics workspace with VM Insights solution
+        //
+
+        {
+            "name": "[variables('logAnalyticsWorkspaceConfig').vmInsightsInstalled.name]",
+            "type": "Microsoft.OperationalInsights/workspaces",
+            "apiVersion": "2021-12-01-preview",
+            "location": "[variables('location')]",
+            "properties": {
+                "sku": {
+                    "name": "pergb2018"
+                }
+            }
+        },
+        {
+            "name": "[format('VMInsights({0})', variables('logAnalyticsWorkspaceConfig').vmInsightsInstalled.name)]",
+            "type": "Microsoft.OperationsManagement/solutions",
+            "apiVersion": "2015-11-01-preview",
+            "location": "[variables('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceConfig').vmInsightsInstalled.name)]"
+            ],
+            "plan": {
+                "publisher": "Microsoft",
+                "product": "OMSGallery/VMInsights",
+                "name": "[format('VMInsights({0})', variables('logAnalyticsWorkspaceConfig').vmInsightsInstalled.name)]",
+                "promotionCode": ""
+            },
+            "properties": {
+                "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceConfig').vmInsightsInstalled.name)]"
+            }
+        },
+
+        //
+        // Log Analytics workspace without VM Insights solution
+        //
+
+        {
+            "name": "[variables('logAnalyticsWorkspaceConfig').vmInsightsNotInstalled.name]",
+            "type": "Microsoft.OperationalInsights/workspaces",
+            "apiVersion": "2021-12-01-preview",
+            "location": "[variables('location')]",
+            "properties": {
+                "sku": {
+                    "name": "pergb2018"
+                }
+            }
+        },
+
+        //
+        // Virtual network
+        //
+
+        {
+            "name": "[variables('virtualNetworkName')]",
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2023-04-01",
+            "location": "[variables('location')]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[variables('subnetName')]",
+                        "properties": {
+                            "addressPrefix": "10.0.0.0/24"
+                        }
+                    }
+                ]
+            }
+        },
+
+        //
+        // Virtual machines
+        //
+
+        {
+            "copy": {
+                "name": "nicCopy",
+                "count": "[length(variables('vmConfig'))]"
+            },
+            "name": "[concat(variables('vmConfig')[copyIndex('nicCopy')].name, '-nic')]",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2023-04-01",
+            "location": "[variables('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "copy": {
+                "name": "vmCopy",
+                "count": "[length(variables('vmConfig'))]"
+            },
+            "name": "[variables('vmConfig')[copyIndex('vmCopy')].name]",
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2023-03-01",
+            "location": "[variables('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('vmConfig')[copyIndex('vmCopy')].name, '-nic'))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_B2s_v2"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "name": "[concat(variables('vmConfig')[copyIndex('vmCopy')].name, '-osdisk')]",
+                        "createOption": "fromImage",
+                        "managedDisk": {
+                            "storageAccountType": "StandardSSD_LRS"
+                        }
+                    },
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2019-datacenter-smalldisk-g2",
+                        "version": "latest"
+                    }
+                },
+                "osProfile": {
+                    "computerName": "[variables('vmConfig')[copyIndex('vmCopy')].computerName]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminPassword": "[parameters('adminPassword')]",
+                    "windowsConfiguration": {
+                        "provisionVmAgent": true,
+                        "enableAutomaticUpdates": true,
+                        "patchSettings": {
+                            "enableHotpatching": false,
+                            "patchMode": "AutomaticByOS"
+                        }
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('vmConfig')[copyIndex('vmCopy')].name, '-nic'))]"
+                        }
+                    ]
+                },
+                "securityProfile": {
+                    "securityType": "TrustedLaunch",
+                    "uefiSettings": {
+                        "secureBootEnabled": true,
+                        "vTpmEnabled": true
+                    }
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            },
+            "identity": {
+                "type": "SystemAssigned"
+            }
+        },
+
+        //
+        // VM Insights full enabled with Azure Monitor agent
+        //
+
+        // Azure Monitor agent
+        {
+            "name": "[concat(variables('config').vmInsightsFullEnabledWithAma.vmName, '/AzureMonitorWindowsAgent')]",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2023-03-01",
+            "location": "[variables('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', variables('config').vmInsightsFullEnabledWithAma.vmName)]"
+            ],
+            "properties": {
+                "type": "AzureMonitorWindowsAgent",
+                "typeHandlerVersion": "1.0",
+                "publisher": "Microsoft.Azure.Monitor",
+                "autoUpgradeMinorVersion": true,
+                "enableAutomaticUpgrade": true
+            }
+        },
+
+        // Dependency agent
+        {
+            "name": "[concat(variables('config').vmInsightsFullEnabledWithAma.vmName, '/DependencyAgentWindows')]",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2023-03-01",
+            "location": "[variables('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', variables('config').vmInsightsFullEnabledWithAma.vmName)]"
+            ],
+            "properties": {
+                "type": "DependencyAgentWindows",
+                "typeHandlerVersion": "9.10",
+                "publisher": "Microsoft.Azure.Monitoring.DependencyAgent",
+                "autoUpgradeMinorVersion": true
+            }
+        },
+
+        // Data collection rule (VM Insights - Performance and Service Map)
+        {
+            "name": "[variables('config').vmInsightsFullEnabledWithAma.dataCollectionRuleName]",
+            "type": "Microsoft.Insights/dataCollectionRules",
+            "apiVersion": "2021-04-01",
+            "location": "[variables('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', variables('config').vmInsightsFullEnabledWithAma.logAnalyticsWorkspaceName)]"
+            ],
+            "properties": {
+                "dataSources": {
+                    "performanceCounters": [
+                        {
+                            "name": "VMInsightsPerfCounters",
+                            "streams": [
+                                "Microsoft-InsightsMetrics"
+                            ],
+                            "scheduledTransferPeriod": "PT1M",
+                            "samplingFrequencyInSeconds": 60,
+                            "counterSpecifiers": [
+                                "\\VmInsights\\DetailedMetrics"
+                            ]
+                        }
+                    ],
+                    "extensions": [
+                        {
+                            "name": "DependencyAgentDataSource",
+                            "streams": [
+                                "Microsoft-ServiceMap"
+                            ],
+                            "extensionName": "DependencyAgent",
+                            "extensionSettings": {}
+                        }
+                    ]
+                },
+                "destinations": {
+                    "logAnalytics": [
+                        {
+                            "name": "VMInsightsPerf-Logs-Dest",
+                            "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('config').vmInsightsFullEnabledWithAma.logAnalyticsWorkspaceName)]"
+                        }
+                    ]
+                },
+                "dataFlows": [
+                    {
+                        "streams": [
+                            "Microsoft-InsightsMetrics"
+                        ],
+                        "destinations": [
+                            "VMInsightsPerf-Logs-Dest"
+                        ]
+                    },
+                    {
+                        "streams": [
+                            "Microsoft-ServiceMap"
+                        ],
+                        "destinations": [
+                            "VMInsightsPerf-Logs-Dest"
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "name": "[concat(variables('config').vmInsightsFullEnabledWithAma.dataCollectionRuleName, '-association')]",
+            "type": "Microsoft.Insights/dataCollectionRuleAssociations",
+            "apiVersion": "2021-09-01-preview",
+            "scope": "[concat('Microsoft.Compute/virtualMachines/', variables('config').vmInsightsFullEnabledWithAma.vmName)]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('config').vmInsightsFullEnabledWithAma.vmName, 'AzureMonitorWindowsAgent')]",
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('config').vmInsightsFullEnabledWithAma.vmName, 'DependencyAgentWindows')]",
+                "[resourceId('Microsoft.Insights/dataCollectionRules', variables('config').vmInsightsFullEnabledWithAma.dataCollectionRuleName)]"
+            ],
+            "properties": {
+                "dataCollectionRuleId": "[resourceId('Microsoft.Insights/dataCollectionRules', variables('config').vmInsightsFullEnabledWithAma.dataCollectionRuleName)]"
+            }
+        },
+
+        //
+        // VM Insights performance only enabled with Azure Monitor agent
+        //
+
+        // Azure Monitor agent
+        {
+            "name": "[concat(variables('config').vmInsightsPerfOnlyEnabledWithAma.vmName, '/AzureMonitorWindowsAgent')]",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2023-03-01",
+            "location": "[variables('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', variables('config').vmInsightsPerfOnlyEnabledWithAma.vmName)]"
+            ],
+            "properties": {
+                "type": "AzureMonitorWindowsAgent",
+                "typeHandlerVersion": "1.0",
+                "publisher": "Microsoft.Azure.Monitor",
+                "autoUpgradeMinorVersion": true,
+                "enableAutomaticUpgrade": true
+            }
+        },
+
+        // Data collection rule (VM Insights - Performance only)
+        {
+            "name": "[variables('config').vmInsightsPerfOnlyEnabledWithAma.dataCollectionRuleName]",
+            "type": "Microsoft.Insights/dataCollectionRules",
+            "apiVersion": "2021-04-01",
+            "location": "[variables('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', variables('config').vmInsightsPerfOnlyEnabledWithAma.logAnalyticsWorkspaceName)]"
+            ],
+            "properties": {
+                "dataSources": {
+                    "performanceCounters": [
+                        {
+                            "name": "VMInsightsPerfCounters",
+                            "streams": [
+                                "Microsoft-InsightsMetrics"
+                            ],
+                            "scheduledTransferPeriod": "PT1M",
+                            "samplingFrequencyInSeconds": 60,
+                            "counterSpecifiers": [
+                                "\\VmInsights\\DetailedMetrics"
+                            ]
+                        }
+                    ]
+                },
+                "destinations": {
+                    "logAnalytics": [
+                        {
+                            "name": "VMInsightsPerf-Logs-Dest",
+                            "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('config').vmInsightsPerfOnlyEnabledWithAma.logAnalyticsWorkspaceName)]"
+                        }
+                    ]
+                },
+                "dataFlows": [
+                    {
+                        "streams": [
+                            "Microsoft-InsightsMetrics"
+                        ],
+                        "destinations": [
+                            "VMInsightsPerf-Logs-Dest"
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "name": "[concat(variables('config').vmInsightsPerfOnlyEnabledWithAma.dataCollectionRuleName, '-association')]",
+            "type": "Microsoft.Insights/dataCollectionRuleAssociations",
+            "apiVersion": "2021-09-01-preview",
+            "scope": "[concat('Microsoft.Compute/virtualMachines/', variables('config').vmInsightsPerfOnlyEnabledWithAma.vmName)]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('config').vmInsightsPerfOnlyEnabledWithAma.vmName, 'AzureMonitorWindowsAgent')]",
+                "[resourceId('Microsoft.Insights/dataCollectionRules', variables('config').vmInsightsPerfOnlyEnabledWithAma.dataCollectionRuleName)]"
+            ],
+            "properties": {
+                "dataCollectionRuleId": "[resourceId('Microsoft.Insights/dataCollectionRules', variables('config').vmInsightsPerfOnlyEnabledWithAma.dataCollectionRuleName)]"
+            }
+        },
+
+        //
+        // VM Insights disabled with Azure Monitor agent
+        //
+
+        // Azure Monitor agent
+        {
+            "name": "[concat(variables('config').vmInsightsDisabledWithAma.vmName, '/AzureMonitorWindowsAgent')]",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2023-03-01",
+            "location": "[variables('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', variables('config').vmInsightsDisabledWithAma.vmName)]"
+            ],
+            "properties": {
+                "type": "AzureMonitorWindowsAgent",
+                "typeHandlerVersion": "1.0",
+                "publisher": "Microsoft.Azure.Monitor",
+                "autoUpgradeMinorVersion": true,
+                "enableAutomaticUpgrade": true
+            }
+        },
+
+        // Data collection rule (Without VM Insights)
+        {
+            "name": "[variables('config').vmInsightsDisabledWithAma.dataCollectionRuleName]",
+            "type": "Microsoft.Insights/dataCollectionRules",
+            "apiVersion": "2021-04-01",
+            "location": "[variables('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', variables('config').vmInsightsDisabledWithAma.logAnalyticsWorkspaceName)]"
+            ],
+            "properties": {
+                "dataSources": {
+                    "windowsEventLogs": [
+                        {
+                            "name": "eventLogsDataSource",
+                            "streams": [
+                                "Microsoft-Event"
+                            ],
+                            "scheduledTransferPeriod": "PT5M",
+                            "xPathQueries": [
+                                "System!*[System[(Level=1)]]"
+                            ]
+                        }
+                    ]
+                },
+                "dataFlows": [
+                    {
+                        "streams": [
+                            "Microsoft-Event"
+                        ],
+                        "destinations": [
+                            "la-data-destination"
+                        ],
+                        "transformKql": "source",
+                        "outputStream": "Microsoft-Event"
+                    }
+                ],
+                "destinations": {
+                    "logAnalytics": [
+                        {
+                            "name": "la-data-destination",
+                            "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('config').vmInsightsDisabledWithAma.logAnalyticsWorkspaceName)]",
+                            "workspaceId": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', variables('config').vmInsightsDisabledWithAma.logAnalyticsWorkspaceName), '2021-12-01-preview').customerId]"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "[concat(variables('config').vmInsightsDisabledWithAma.dataCollectionRuleName, '-association')]",
+            "type": "Microsoft.Insights/dataCollectionRuleAssociations",
+            "apiVersion": "2021-09-01-preview",
+            "scope": "[concat('Microsoft.Compute/virtualMachines/', variables('config').vmInsightsDisabledWithAma.vmName)]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('config').vmInsightsDisabledWithAma.vmName, 'AzureMonitorWindowsAgent')]",
+                "[resourceId('Microsoft.Insights/dataCollectionRules', variables('config').vmInsightsDisabledWithAma.dataCollectionRuleName)]"
+            ],
+            "properties": {
+                "dataCollectionRuleId": "[resourceId('Microsoft.Insights/dataCollectionRules', variables('config').vmInsightsDisabledWithAma.dataCollectionRuleName)]"
+            }
+        },
+
+        //
+        // VM Insights enabled with Log Analytics agent
+        //
+
+        {
+            "name": "[concat(variables('config').vmInsightsEnabledWithMma.vmName, '/MicrosoftMonitoringAgent')]",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2023-03-01",
+            "location": "[variables('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', variables('config').vmInsightsEnabledWithMma.vmName)]",
+                "[resourceId('Microsoft.OperationalInsights/workspaces', variables('config').vmInsightsEnabledWithMma.logAnalyticsWorkspaceName)]"
+            ],
+            "properties": {
+                "type": "MicrosoftMonitoringAgent",
+                "typeHandlerVersion": "1.0",
+                "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "workspaceId": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', variables('config').vmInsightsEnabledWithMma.logAnalyticsWorkspaceName), '2021-12-01-preview').customerId]",
+                    "azureResourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('config').vmInsightsEnabledWithMma.vmName)]",
+                    "stopOnMultipleConnections": true
+                },
+                "protectedSettings": {
+                    "workspaceKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', variables('config').vmInsightsEnabledWithMma.logAnalyticsWorkspaceName), '2021-12-01-preview').primarySharedKey]"
+                }
+            }
+        },
+        {
+            "name": "[concat(variables('config').vmInsightsEnabledWithMma.vmName, '/DependencyAgentWindows')]",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2023-03-01",
+            "location": "[variables('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', variables('config').vmInsightsEnabledWithMma.vmName)]"
+            ],
+            "properties": {
+                "type": "DependencyAgentWindows",
+                "typeHandlerVersion": "9.10",
+                "publisher": "Microsoft.Azure.Monitoring.DependencyAgent",
+                "autoUpgradeMinorVersion": true
+            }
+        },
+
+        //
+        // VM Insights disabled with Log Analytics agent
+        //
+
+        {
+            "name": "[concat(variables('config').vmInsightsDisabledWithMma.vmName, '/MicrosoftMonitoringAgent')]",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2023-03-01",
+            "location": "[variables('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', variables('config').vmInsightsDisabledWithMma.vmName)]",
+                "[resourceId('Microsoft.OperationalInsights/workspaces', variables('config').vmInsightsDisabledWithMma.logAnalyticsWorkspaceName)]"
+            ],
+            "properties": {
+                "type": "MicrosoftMonitoringAgent",
+                "typeHandlerVersion": "1.0",
+                "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "workspaceId": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', variables('config').vmInsightsDisabledWithMma.logAnalyticsWorkspaceName), '2021-12-01-preview').customerId]",
+                    "azureResourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('config').vmInsightsDisabledWithMma.vmName)]",
+                    "stopOnMultipleConnections": true
+                },
+                "protectedSettings": {
+                    "workspaceKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', variables('config').vmInsightsDisabledWithMma.logAnalyticsWorkspaceName), '2021-12-01-preview').primarySharedKey]"
+                }
+            }
+        }
+    ]
+}
