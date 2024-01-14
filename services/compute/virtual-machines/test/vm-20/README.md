@@ -23,11 +23,23 @@
 
 ### Should include
 
-- TODO
+VM Insights is disabled (not enabled).
+
+| # | Resource Type | OS | VM Insights | Installed Agents | DCR |
+| ---- | ---- | ---- | ---- | ---- | ---- |
+| 3 | Virtual machine | Windows | Disabled | Azure Monitor agent | Yes |
+| 5 | Virtual machine | Windows | Disabled | Microsoft Monitoring agent | n/a |
+| 6 | Virtual machine | Windows | Disabled | None | n/a |
 
 ### Should not be included
 
-- TODO
+VM Insights is enabled.
+
+| # | Resource Type | OS | VM Insights | Installed Agents | DCR |
+| ---- | ---- | ---- | ---- | ---- | ---- |
+| 1 | Virtual machine | Windows | Enabled (Performance & Service Map) | Azure Monitor agent<br/>Dependency agent | Yes  |
+| 2 | Virtual machine | Windows | Enabled (Performance only) | Azure Monitor agent | Yes |
+| 4 | Virtual machine | Windows | Enabled | Microsoft Monitoring agent<br/>Dependency agent | n/a  |
 
 ## TODO
 
