@@ -1,0 +1,144 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {},
+    "variables": {
+        // Common
+        "location": "eastus2",  // Specifying region must have three AZ and it is home region of global load balancer.
+
+        // Public IP address configurations
+        "config": [
+            // Standard Regional IPv4 Static No-zone
+            {
+                "name": "standard-regional-ipv4-static-nozone",
+                "sku": "Standard",
+                "tier": "Regional",
+                "ipVersion": "IPv4",
+                "allocationMethod": "Static",
+                "zones": []
+            },
+
+            // Standard Regional IPv4 Static Zone-redundant
+            {
+                "name": "standard-regional-ipv4-static-zoneredundant",
+                "sku": "Standard",
+                "tier": "Regional",
+                "ipVersion": "IPv4",
+                "allocationMethod": "Static",
+                "zones": [ "1", "2", "3" ]
+            },
+
+            // Standard Regional IPv4 Static Zonal
+            {
+                "name": "standard-regional-ipv4-static-zonal",
+                "sku": "Standard",
+                "tier": "Regional",
+                "ipVersion": "IPv4",
+                "allocationMethod": "Static",
+                "zones": [ "1" ]
+            },
+
+            // Standard Regional IPv6 Static No-zone
+            {
+                "name": "standard-regional-ipv6-static-nozone",
+                "sku": "Standard",
+                "tier": "Regional",
+                "ipVersion": "IPv6",
+                "allocationMethod": "Static",
+                "zones": []
+            },
+
+            // Standard Regional IPv6 Static Zone-redundant
+            {
+                "name": "standard-regional-ipv6-static-zoneredundant",
+                "sku": "Standard",
+                "tier": "Regional",
+                "ipVersion": "IPv6",
+                "allocationMethod": "Static",
+                "zones": [ "1", "2", "3" ]
+            },
+
+            // Standard Regional IPv6 Static Zonal
+            {
+                "name": "standard-regional-ipv6-static-zonal",
+                "sku": "Standard",
+                "tier": "Regional",
+                "ipVersion": "IPv6",
+                "allocationMethod": "Static",
+                "zones": [ "1" ]
+            },
+
+            // Standard GLobal IPv4 Static
+            {
+                "name": "standard-global-ipv4-static",
+                "sku": "Standard",
+                "tier": "Global",
+                "ipVersion": "IPv4",
+                "allocationMethod": "Static",
+                "zones": []
+            },
+
+            // Standard GLobal IPv6 Static
+            {
+                "name": "standard-global-ipv6-static",
+                "sku": "Standard",
+                "tier": "Global",
+                "ipVersion": "IPv4",
+                "allocationMethod": "Static",
+                "zones": []
+            },
+
+            // Basic IPv4 Dynamic
+            {
+                "name": "basic-ipv4-dynamic",
+                "sku": "Basic",
+                "tier": "Regional",
+                "ipVersion": "IPv4",
+                "allocationMethod": "Dynamic",
+                "zones": []
+            },
+
+            // Basic IPv4 Static
+            {
+                "name": "basic-ipv4-static",
+                "sku": "Basic",
+                "tier": "Regional",
+                "ipVersion": "IPv4",
+                "allocationMethod": "Static",
+                "zones": []
+            },
+
+            // Basic IPv6 Dynamic
+            {
+                "name": "basic-ipv6-dynamic",
+                "sku": "Basic",
+                "tier": "Regional",
+                "ipVersion": "IPv6",
+                "allocationMethod": "Dynamic",
+                "zones": []
+            }
+        ]
+    },
+    "resources": [
+        {
+            "copy": {
+                "name": "publicIPAddressesCopy",
+                "count": "[length(variables('config'))]"
+            },
+            "name": "[variables('config')[copyIndex()].name]",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2023-04-01",
+            "location": "[variables('location')]",
+            "sku": {
+                "name": "[variables('config')[copyIndex()].sku]",
+                "tier": "[variables('config')[copyIndex()].tier]"
+            },
+            "properties": {
+                "publicIpAddressVersion": "[variables('config')[copyIndex()].ipVersion]",
+                "publicIPAllocationMethod": "[variables('config')[copyIndex()].allocationMethod]",
+                "idleTimeoutInMinutes": 4
+            },
+            "zones": "[variables('config')[copyIndex()].zones]"
+        }
+    ]
+}
